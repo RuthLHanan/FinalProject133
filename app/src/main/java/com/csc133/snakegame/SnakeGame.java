@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.io.IOException;
+import java.util.Random;
 
 class SnakeGame extends SurfaceView implements Runnable{
 
@@ -48,11 +49,15 @@ class SnakeGame extends SurfaceView implements Runnable{
     // And an apple
     private Apple mApple;
 
+    private Context thisContext;
+
 
     // This is the constructor method that gets called
     // from SnakeActivity
     public SnakeGame(Context context, Point size) {
         super(context);
+
+        thisContext = context;
 
         // Work out how many pixels each block is
         int blockSize = size.x / NUM_BLOCKS_WIDE;
@@ -96,7 +101,7 @@ class SnakeGame extends SurfaceView implements Runnable{
         mApple = new Apple(context,
                 new Point(NUM_BLOCKS_WIDE,
                         mNumBlocksHigh),
-                blockSize);
+                blockSize, false);
 
         mSnake = new Snake(context,
                 new Point(NUM_BLOCKS_WIDE,
@@ -174,10 +179,24 @@ class SnakeGame extends SurfaceView implements Runnable{
         if(mSnake.checkDinner(mApple.getLocation())){
             // This reminds me of Edge of Tomorrow.
             // One day the apple will be ready!
-            mApple.spawn();
 
             // Add to  mScore
-            mScore = mScore + 1;
+            // Golden apples are worth 3 points
+            if( mApple.getAppleGolden() ){
+                mScore = mScore + 3;
+            } else{
+                mScore = mScore + 1;
+            }
+
+            // Determine if the next apple is a Golden Apple - 10% chance
+            Random random = new Random();
+            int rngAppleValue = random.nextInt(10);
+            boolean appleIsGolden = (9 == rngAppleValue);
+
+            // Create a new Apple object based on the apple type and the old parameters
+            mApple = new Apple(thisContext, mApple.getSpawnRange(), mApple.getSize(), appleIsGolden);
+
+            mApple.spawn();
 
             // Play a sound
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
