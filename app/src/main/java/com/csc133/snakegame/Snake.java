@@ -43,6 +43,11 @@ class Snake {
     // A bitmap for the body
     private Bitmap mBitmapBody;
 
+    private Obstacle obstacle;
+
+    boolean detectObstacleCollision(Obstacle obstacle) {
+        return segmentLocations.get(0).equals(obstacle.getPosition());
+    }
 
     Snake(Context context, Point mr, int ss) {
 
@@ -111,8 +116,11 @@ class Snake {
         // The halfway point across the screen in pixels
         // Used to detect which side of screen was pressed
         halfWayPoint = mr.x * ss / 2;
-    }
 
+        //Created an obstacle using skull.png (Ruth)
+        obstacle = new Obstacle(context, R.drawable.skull, ss);
+
+    }
     // Get the snake ready for a new game
     void reset(int w, int h) {
 
@@ -124,6 +132,9 @@ class Snake {
 
         // Start with a single snake segment
         segmentLocations.add(new Point(w / 2, h / 2));
+
+        // Reset the obstacle position (Ruth)
+        obstacle.generateRandomPosition(mMoveRange.x, mMoveRange.y);
     }
 
 
@@ -169,21 +180,26 @@ class Snake {
         boolean dead = false;
 
         // Hit any of the screen edges
-        if (segmentLocations.get(0).x == -1 ||
-                segmentLocations.get(0).x > mMoveRange.x ||
-                segmentLocations.get(0).y == -1 ||
-                segmentLocations.get(0).y > mMoveRange.y) {
-
+        if (segmentLocations.get(0).equals(obstacle.getPosition())) {
             dead = true;
-        }
-
-        // Eaten itself?
-        for (int i = segmentLocations.size() - 1; i > 0; i--) {
-            // Have any of the sections collided with the head
-            if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
-                    segmentLocations.get(0).y == segmentLocations.get(i).y) {
+        } else {
+            // Hit any of the screen edges
+            if (segmentLocations.get(0).x == -1 ||
+                    segmentLocations.get(0).x > mMoveRange.x ||
+                    segmentLocations.get(0).y == -1 ||
+                    segmentLocations.get(0).y > mMoveRange.y) {
 
                 dead = true;
+            }
+
+            // Eaten itself?
+            for (int i = segmentLocations.size() - 1; i > 0; i--) {
+                // Have any of the sections collided with the head
+                if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
+                        segmentLocations.get(0).y == segmentLocations.get(i).y) {
+
+                    dead = true;
+                }
             }
         }
         return dead;
@@ -253,6 +269,8 @@ class Snake {
                         segmentLocations.get(i).y
                                 * mSegmentSize, paint);
             }
+            // Draw the obstacle
+            obstacle.draw(canvas, mSegmentSize);
         }
     }
 

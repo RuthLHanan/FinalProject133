@@ -52,6 +52,8 @@ class SnakeGame extends SurfaceView implements Runnable{
     private Context thisContext;
 
 
+    private Obstacle mObstacle;
+
     // This is the constructor method that gets called
     // from SnakeActivity
     public SnakeGame(Context context, Point size) {
@@ -61,6 +63,9 @@ class SnakeGame extends SurfaceView implements Runnable{
 
         // Work out how many pixels each block is
         int blockSize = size.x / NUM_BLOCKS_WIDE;
+
+        mObstacle = new Obstacle(context, R.drawable.skull, blockSize);
+
         // How many blocks of the same size will fit into the height
         mNumBlocksHigh = size.y / blockSize;
 
@@ -203,11 +208,10 @@ class SnakeGame extends SurfaceView implements Runnable{
         }
 
         // Did the snake die?
-        if (mSnake.detectDeath()) {
+        if (mSnake.detectDeath() || mSnake.detectObstacleCollision(mObstacle)) {
             // Pause the game ready to start again
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
-
-            mPaused =true;
+            mPaused = true;
         }
 
     }
@@ -229,7 +233,9 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Draw the score
             mCanvas.drawText("" + mScore, 20, 120, mPaint);
 
-            // Draw the apple and the snake
+            // Draw obstacle, apple and the snake
+            int obstacleSize = 1;
+            mObstacle.draw(mCanvas, obstacleSize);
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
