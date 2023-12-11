@@ -23,6 +23,12 @@ class Apple {
     // This boolean determines if the apple is golden
     private boolean isGolden = false;
 
+    // This int determines how many points the apple is worth
+    private int scoreValue = 0;
+
+    // An image to represent the apple
+    private Bitmap mBitmapApple;
+
     // Get the isGolden value
     public boolean getAppleGolden(){
         return this.isGolden;
@@ -43,30 +49,55 @@ class Apple {
         return mSize;
     }
 
-    // An image to represent the apple
-    private Bitmap mBitmapApple;
+    // Get the score value
+    public int getScoreValue(){ return this.scoreValue; }
 
     /// Set up the apple in the constructor
-    Apple(Context context, Point sr, int s, boolean appleGolden){
-
+    private Apple(AppleBuilder builder) {
+        this.isGolden=builder.isGolden;
+        this.scoreValue=builder.scoreValue;
         // Make a note of the passed in spawn range
-        mSpawnRange = sr;
+        this.mSpawnRange=builder.spawnRange;
         // Make a note of the size of an apple
-        mSize = s;
+        this.mSize=builder.size;
         // Hide the apple off-screen until the game starts
         location.x = -10;
-
         // Load the image to the bitmap
         // Load a different image if golden
-        if( appleGolden ) {
-            mBitmapApple = BitmapFactory.decodeResource(context.getResources(), R.drawable.applegolden);
+        if( this.isGolden ) {
+            mBitmapApple = BitmapFactory.decodeResource(builder.context.getResources(), R.drawable.applegolden);
         } else {
-            mBitmapApple = BitmapFactory.decodeResource(context.getResources(), R.drawable.apple);
+            mBitmapApple = BitmapFactory.decodeResource(builder.context.getResources(), R.drawable.apple);
         }
-        this.setAppleGolden(appleGolden);
-
         // Resize the bitmap
-        mBitmapApple = Bitmap.createScaledBitmap(mBitmapApple, s, s, false);
+        mBitmapApple = Bitmap.createScaledBitmap(mBitmapApple, builder.size, builder.size, false);
+    }
+
+    //Builder Class
+    public static class AppleBuilder{
+
+        // required parameters
+        private boolean isGolden = false;
+        private int size = 0;
+        private int scoreValue = 0;
+        private Point spawnRange;
+        private Context context;
+        public AppleBuilder(Context context, Point sr, int s, boolean isGoldenApple ){
+            this.isGolden=isGoldenApple;
+            if( isGoldenApple ) {
+                this.scoreValue = 3;
+            } else{
+                this.scoreValue = 1;
+            }
+            this.spawnRange = sr;
+            this.size = s;
+            this.context = context;
+        }
+
+        public Apple build(){
+            return new Apple(this);
+        }
+
     }
 
     // This is called every time an apple is eaten

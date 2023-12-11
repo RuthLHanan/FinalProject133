@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.content.Context;
 
+import java.util.Random;
+
 public class Obstacle {
     private Point position;
     private Bitmap obstacleBitmap;
@@ -29,5 +31,14 @@ public class Obstacle {
     public void draw(Canvas canvas, int segmentSize) {
         // Draw the obstacle bitmap at the specified position
         canvas.drawBitmap(obstacleBitmap, position.x * segmentSize, position.y * segmentSize, null);
+    }
+
+    // This is called every time an apple is eaten
+    void spawn(Point mSpawnRange){
+        // Choose two random values and place the apple
+        Random random = new Random();
+
+        position.x = random.nextInt(mSpawnRange.x) + 1;
+        position.y = random.nextInt(mSpawnRange.y - 1) + 1;
     }
 }
