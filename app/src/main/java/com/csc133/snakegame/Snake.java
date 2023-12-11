@@ -1,10 +1,14 @@
 package com.csc133.snakegame;
+package com.csc133.runnablecode;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.AudioAttributes;
@@ -15,9 +19,41 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
-class Snake extends Moveable{
+
+
+class Snake {
+
+    private ArrayList<Point> segmentLocations;
+
+    // How big is each segment of the snake?
+    private int mSegmentSize;
+
+    // How big is the entire grid
+    private Point mMoveRange;
+
+    // Where is the centre of the screen
+    // horizontally in pixels?
+    private int halfWayPoint;
+
+    // For tracking movement Heading
+    private enum Heading {
+        UP, RIGHT, DOWN, LEFT
+    }
+
+    // Start by heading to the right
+    private Heading heading = Heading.RIGHT;
+
+    // A bitmap for each direction the head can face
+    private Bitmap mBitmapHeadRight;
+    private Bitmap mBitmapHeadLeft;
+    private Bitmap mBitmapHeadUp;
+    private Bitmap mBitmapHeadDown;
+
+    // A bitmap for the body
+    private Bitmap mBitmapBody;
 
     // The location in the grid of all the segments
     private int lives = 5;
@@ -30,31 +66,7 @@ class Snake extends Moveable{
 
     Snake(Context context, Point mr, int ss) {
 
-        // Initialize our ArrayList
-        segmentLocations = new ArrayList<>();
 
-        // Initialize the segment size and movement
-        // range from the passed in parameters
-        mSegmentSize = ss;
-        mMoveRange = mr;
-
-        // Create and scale the bitmaps
-        mBitmapHeadRight = BitmapFactory
-                .decodeResource(context.getResources(),
-                        R.drawable.head);
-
-        // Create 3 more versions of the head for different headings
-        mBitmapHeadLeft = BitmapFactory
-                .decodeResource(context.getResources(),
-                        R.drawable.head);
-
-        mBitmapHeadUp = BitmapFactory
-                .decodeResource(context.getResources(),
-                        R.drawable.head);
-
-        mBitmapHeadDown = BitmapFactory
-                .decodeResource(context.getResources(),
-                        R.drawable.head);
 
         // Modify the bitmaps to face the snake head
         // in the correct direction
@@ -154,47 +166,87 @@ class Snake extends Moveable{
 
     }
 
-    Public void setLives(int num) {
+    public void setLives(int num) {
         this.lives = num;
     }
     protected int getLives() {
         return this.lives;
     }
 
-    boolean detectDeath() {
-        // Has the snake died?
-        boolean dead = false;
 
-        if (getLives() <= 0) {
-            dead =true
+    protected boolean bounds(){
+        boolean lost = false;
+        if (segmentLocations.get(0).x == -1 ||
+                segmentLocations.get(0).x > mMoveRange.x ||
+                segmentLocations.get(0).y == -1 ||
+                segmentLocations.get(0).y > mMoveRange.y) {
+            lost = true;
         }
+        return lost;
+    }
 
-        // Hit any of the screen edges
-        if (segmentLocations.get(0).equals(obstacle.getPosition())) {
-            setLives(getLives()-1);
-        } else {
-            // Hit any of the screen edges
-            if (getLives() <= 0 || segmentLocations.get(0).x == -1 ||
-                    segmentLocations.get(0).x > mMoveRange.x ||
-                    segmentLocations.get(0).y == -1 ||
-                    segmentLocations.get(0).y > mMoveRange.y) {
+    protected boolean bite() {
+        boolean lost = false;
+
+        for (int i = segmentLocations.size() - 1; i > 0; i--) {
+            // Have any of the sections collided with the head
+            if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
+                    segmentLocations.get(0).y == segmentLocations.get(i).y) {
 
                 //dead = true;
-                setLives(getLives()-1);
-            }
-
-            // Eaten itself?
-            for (int i = segmentLocations.size() - 1; i > 0; i--) {
-                // Have any of the sections collided with the head
-                if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
-                        segmentLocations.get(0).y == segmentLocations.get(i).y) {
-
-                    dead = true;
-                }
+                lost = true;
             }
         }
-        return dead;
+        return lost;
     }
+    protected boolean accident() {
+        boolean lost = false;
+
+        if (detectObstacleCollision(obstacle)) {
+            lost = true;
+        }
+        return lost;
+    }
+
+
+
+//    boolean detectDeath() {
+//        // Has the snake died?
+//        boolean dead = false;
+//
+//        if (getLives() < 1) {
+//            dead =true;
+//        }
+//
+//        // Hit any of the screen edges
+//        if (detectObstacleCollision(obstacle)) {
+//            setLives(getLives()-1);
+//        } else {
+//            // Hit any of the screen edges
+//            if (segmentLocations.get(0).x == -1 ||
+//                    segmentLocations.get(0).x > mMoveRange.x ||
+//                    segmentLocations.get(0).y == -1 ||
+//                    segmentLocations.get(0).y > mMoveRange.y) {
+//                //dead = true;
+//                setLives(getLives()-1);
+//            }
+//
+//            // Eaten itself?
+//            for (int i = segmentLocations.size() - 1; i > 0; i--) {
+//                // Have any of the sections collided with the head
+//                if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
+//                        segmentLocations.get(0).y == segmentLocations.get(i).y) {
+//
+//                    //dead = true;
+//                    setLives(getLives()-1);
+//                }
+//            }
+//        }
+//        if (getLives() < 1) dead =true;
+//
+//
+//        return dead;
+//    }
 
     boolean checkDinner(Point l) {
         //if (snakeXs[0] == l.x && snakeYs[0] == l.y) {
@@ -306,3 +358,34 @@ class Snake extends Moveable{
         }
     }
 }
+
+
+
+//    protected boolean accident() {
+//        boolean lost = false;
+//
+//        if (detectObstacleCollision(obstacle)) {
+//            lost = true;
+//        } else {
+//            // Hit any of the screen edges
+//            if (segmentLocations.get(0).x == -1 ||
+//                    segmentLocations.get(0).x > mMoveRange.x ||
+//                    segmentLocations.get(0).y == -1 ||
+//                    segmentLocations.get(0).y > mMoveRange.y) {
+//                lost = true;
+//                mCanvas.drawText("Watch where you're going fella  ",450, 1200 , mPaint);
+//
+//            }
+//
+//            for (int i = segmentLocations.size() - 1; i > 0; i--) {
+//                // Have any of the sections collided with the head
+//                if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
+//                        segmentLocations.get(0).y == segmentLocations.get(i).y) {
+//
+//                    //dead = true;
+//                    lost = true;
+//                }
+//            }
+//        }
+//        return lost;
+//    }

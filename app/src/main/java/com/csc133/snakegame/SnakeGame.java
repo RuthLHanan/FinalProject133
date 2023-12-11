@@ -207,12 +207,37 @@ class SnakeGame extends SurfaceView implements Runnable{
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
         }
 
-        // Did the snake die?
-        if (mSnake.detectDeath() || mSnake.detectObstacleCollision(mObstacle)) {
+        if (mSnake.getLives() >= 0) {
+            if (mSnake.accident()) {
+                mSP.play(mCrashID, 1, 1, 0, 0, 1);
+                mCanvas.drawText("Watch where you're going fella  ", 450, 1200, mPaint);
+                mPaused = true;
+                mSnake.setLives(mSnake.getLives() - 1);
+            } else if (mSnake.bounds()) {
+                mSP.play(mCrashID, 1, 1, 0, 0, 1);
+                mCanvas.drawText("womp womp...out of bounds  ", 450, 1200, mPaint);
+                mPaused = true;
+                mSnake.setLives(mSnake.getLives() - 1);
+            } else if (mSnake.bite()) {
+                mSP.play(mCrashID, 1, 1, 0, 0, 1);
+                mCanvas.drawText("you bit yourself  ", 450, 1200, mPaint);
+                mPaused = true;
+                mSnake.setLives(mSnake.getLives() - 1);
+            }
+        }
+/*
+        } else {
+            //How do you reset the game?????
+        }
+ Did the snake die?
+        if (mSnake.detectDeath()) {
             // Pause the game ready to start again
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
             mPaused = true;
+
         }
+*/
+
 
     }
 
@@ -233,14 +258,16 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Draw the score
             mCanvas.drawText("" + mScore, 20, 120, mPaint);
 
+            //posting lives remaining on canvas
+            mCanvas.drawText("Lives: " + mSnake.getLives(),600, 2000 , mPaint);
+
             // Draw obstacle, apple and the snake
             int obstacleSize = 1;
             mObstacle.draw(mCanvas, obstacleSize);
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
-            //posting lives remining on canvas
-            LivesRemaining(mSnake);
+
 
             // Draw some text while paused
             if(mPaused){
@@ -260,13 +287,12 @@ class SnakeGame extends SurfaceView implements Runnable{
 
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
+
+
         }
     }
 
-    protected void LivesRemaining(Snake mSnake) {
-        mCanvas.drawText("Lives: " + mSnake.getLives(),//////////////////////
-                mScreenX/2 , mScreenY/10, mPaint);
-    }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
