@@ -239,6 +239,9 @@ class SnakeGame extends SurfaceView implements Runnable{
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
+            //posting lives remining on canvas
+            LivesRemaining(mSnake);
+
             // Draw some text while paused
             if(mPaused){
 
@@ -258,6 +261,11 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
+    }
+
+    protected void LivesRemaining(Snake mSnake) {
+        mCanvas.drawText("Lives: " + mSnake.getLives(),//////////////////////
+                mScreenX/2 , mScreenY/10, mPaint);
     }
 
     @Override

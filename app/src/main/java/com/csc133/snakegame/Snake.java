@@ -1,47 +1,26 @@
 package com.csc133.snakegame;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import java.io.IOException;
+import java.util.Random;
 
-import java.util.ArrayList;
-
-class Snake {
+class Snake extends Moveable{
 
     // The location in the grid of all the segments
-    private ArrayList<Point> segmentLocations;
-
-    // How big is each segment of the snake?
-    private int mSegmentSize;
-
-    // How big is the entire grid
-    private Point mMoveRange;
-
-    // Where is the centre of the screen
-    // horizontally in pixels?
-    private int halfWayPoint;
-
-    // For tracking movement Heading
-    private enum Heading {
-        UP, RIGHT, DOWN, LEFT
-    }
-
-    // Start by heading to the right
-    private Heading heading = Heading.RIGHT;
-
-    // A bitmap for each direction the head can face
-    private Bitmap mBitmapHeadRight;
-    private Bitmap mBitmapHeadLeft;
-    private Bitmap mBitmapHeadUp;
-    private Bitmap mBitmapHeadDown;
-
-    // A bitmap for the body
-    private Bitmap mBitmapBody;
+    private int lives = 5;
 
     private Obstacle obstacle;
 
@@ -175,21 +154,33 @@ class Snake {
 
     }
 
+    Public void setLives(int num) {
+        this.lives = num;
+    }
+    protected int getLives() {
+        return this.lives;
+    }
+
     boolean detectDeath() {
         // Has the snake died?
         boolean dead = false;
 
+        if (getLives() <= 0) {
+            dead =true
+        }
+
         // Hit any of the screen edges
         if (segmentLocations.get(0).equals(obstacle.getPosition())) {
-            dead = true;
+            setLives(getLives()-1);
         } else {
             // Hit any of the screen edges
-            if (segmentLocations.get(0).x == -1 ||
+            if (getLives() <= 0 || segmentLocations.get(0).x == -1 ||
                     segmentLocations.get(0).x > mMoveRange.x ||
                     segmentLocations.get(0).y == -1 ||
                     segmentLocations.get(0).y > mMoveRange.y) {
 
-                dead = true;
+                //dead = true;
+                setLives(getLives()-1);
             }
 
             // Eaten itself?
