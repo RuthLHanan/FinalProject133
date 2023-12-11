@@ -210,43 +210,7 @@ class Snake {
 
 
 
-//    boolean detectDeath() {
-//        // Has the snake died?
-//        boolean dead = false;
 //
-//        if (getLives() < 1) {
-//            dead =true;
-//        }
-//
-//        // Hit any of the screen edges
-//        if (detectObstacleCollision(obstacle)) {
-//            setLives(getLives()-1);
-//        } else {
-//            // Hit any of the screen edges
-//            if (segmentLocations.get(0).x == -1 ||
-//                    segmentLocations.get(0).x > mMoveRange.x ||
-//                    segmentLocations.get(0).y == -1 ||
-//                    segmentLocations.get(0).y > mMoveRange.y) {
-//                //dead = true;
-//                setLives(getLives()-1);
-//            }
-//
-//            // Eaten itself?
-//            for (int i = segmentLocations.size() - 1; i > 0; i--) {
-//                // Have any of the sections collided with the head
-//                if (segmentLocations.get(0).x == segmentLocations.get(i).x &&
-//                        segmentLocations.get(0).y == segmentLocations.get(i).y) {
-//
-//                    //dead = true;
-//                    setLives(getLives()-1);
-//                }
-//            }
-//        }
-//        if (getLives() < 1) dead =true;
-//
-//
-//        return dead;
-//    }
 
     boolean checkDinner(Point l) {
         //if (snakeXs[0] == l.x && snakeYs[0] == l.y) {
